@@ -1,9 +1,9 @@
 [gd_scene load_steps=8 format=3 uid="uid://jy7jrndloukd"]
 
-[ext_resource type="Texture2D" uid="uid://ex478uomuaah" path="res://textures/sky/sky_dust_1.exr" id="1_4004m"]
+[ext_resource type="Texture2D" uid="uid://ex478uomuaah" path="res://assets/skybox/sky_dust_1.exr" id="1_4004m"]
 [ext_resource type="CameraAttributesPractical" uid="uid://ctmrj2k2j2xwo" path="res://attributes/levelDesignCameraAttributePracticalEnv.tres" id="2_mlt1h"]
-[ext_resource type="PackedScene" uid="uid://chw7taklxu4nm" path="res://fabs/player.tscn" id="3_mx0mt"]
-[ext_resource type="PackedScene" uid="uid://ogw0kyil2dvd" path="res://models/campaign/junkyard/ground/groundJunkyard.glb" id="7_c23j3"]
+[ext_resource type="PackedScene" uid="uid://chw7taklxu4nm" path="res://prefabs/player.tscn" id="3_mx0mt"]
+[ext_resource type="PackedScene" uid="uid://ogw0kyil2dvd" path="res://assets/ground/groundJunkyard.glb" id="7_c23j3"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_cg44b"]
 panorama = ExtResource("1_4004m")

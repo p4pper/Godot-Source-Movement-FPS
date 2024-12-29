@@ -1,0 +1,219 @@
+[gd_scene load_steps=11 format=3 uid="uid://chw7taklxu4nm"]
+
+[ext_resource type="Script" path="res://scripts/player/PlayerController.cs" id="1_a6n6j"]
+[ext_resource type="CameraAttributesPractical" uid="uid://ctmrj2k2j2xwo" path="res://attributes/levelDesignCameraAttributePracticalEnv.tres" id="2_r2usr"]
+[ext_resource type="Script" path="res://scripts/crosshair/Reticle.cs" id="4_02q2x"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_sjllg"]
+radius = 0.521626
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ghod4"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fhihc"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_a4hjn"]
+material = SubResource("StandardMaterial3D_fhihc")
+
+[sub_resource type="Animation" id="Animation_wtq0j"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlayerModel:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Head:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0.828633, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("CollisionShape3D:shape:height")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [2.0]
+}
+
+[sub_resource type="Animation" id="Animation_fvokn"]
+resource_name = "playerCrouch"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlayerModel:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(1, 1, 1), Vector3(1, 0.7, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Head:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0.828633, 0), Vector3(0, 0.451776, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("CollisionShape3D:shape:height")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [2.0, 1.44147]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_n1rmt"]
+_data = {
+"RESET": SubResource("Animation_wtq0j"),
+"playerCrouch": SubResource("Animation_fvokn")
+}
+
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("animationPlayer", "pauseUI")]
+transform = Transform3D(1, 0, 0, 0, 0.999099, 0, 0, 0, 1, 0, 0.868165, 0)
+script = ExtResource("1_a6n6j")
+animationPlayer = NodePath("AnimationPlayer")
+allowAutoJump = true
+cameraEnvSettings = ExtResource("2_r2usr")
+pauseUI = NodePath("UI/Pause")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_sjllg")
+
+[node name="PlayerModel" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="PlayerModel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00483763, 0.019896, 0.0100002)
+mesh = SubResource("CapsuleMesh_ghod4")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="PlayerModel"]
+transform = Transform3D(1, 0, 0, 0, 0.199251, 0, 0, 0, 0.16558, 0.000547767, 0.404027, -0.512296)
+mesh = SubResource("CapsuleMesh_a4hjn")
+
+[node name="Head" type="Node3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.828633, 0)
+
+[node name="PlayerCamera" type="Camera3D" parent="Head"]
+unique_name_in_owner = true
+cull_mask = 1048573
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_n1rmt")
+}
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Crosshair" type="CenterContainer" parent="UI" node_paths=PackedStringArray("reticleLines", "playerController")]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_02q2x")
+reticleLines = [NodePath("Top"), NodePath("Right"), NodePath("Bottom"), NodePath("Left")]
+playerController = NodePath("../..")
+
+[node name="Top" type="Line2D" parent="UI/Crosshair"]
+position = Vector2(20, 20)
+points = PackedVector2Array(0, -5, 0, -15)
+width = 2.0
+
+[node name="Right" type="Line2D" parent="UI/Crosshair"]
+position = Vector2(20, 20)
+points = PackedVector2Array(5, 0, 15, 0)
+width = 2.0
+
+[node name="Bottom" type="Line2D" parent="UI/Crosshair"]
+position = Vector2(20, 20)
+points = PackedVector2Array(0, 5, 0, 15)
+width = 2.0
+
+[node name="Left" type="Line2D" parent="UI/Crosshair"]
+position = Vector2(20, 20)
+points = PackedVector2Array(-5, 0, -15, 0)
+width = 2.0
+
+[node name="Pause" type="Control" parent="UI"]
+visible = false
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Button" type="Button" parent="UI/Pause"]
+layout_mode = 2
+offset_left = 372.0
+offset_top = 282.0
+offset_right = 775.0
+offset_bottom = 365.0
+text = "Wow pause menu"
+
+[node name="HUD" type="Control" parent="UI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="UI/HUD"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -119.0
+offset_top = -19.0
+offset_right = -79.0
+offset_bottom = 21.0
+grow_horizontal = 0
+grow_vertical = 2
+scale = Vector2(3, 2)
