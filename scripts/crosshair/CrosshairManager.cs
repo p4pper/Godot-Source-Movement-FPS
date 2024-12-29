@@ -1,10 +1,9 @@
 using Godot;
-using System;
 
-public partial class Reticle : CenterContainer
+public partial class CrosshairManager : CenterContainer
 {
 
-    [Export] private int clThickness = 2;
+    [Export] private float clThickness = 2f;
     [Export] private bool clDynamic = true;
 
     [Export] private Line2D[] reticleLines;
@@ -19,8 +18,9 @@ public partial class Reticle : CenterContainer
     {
         for (int i = 0; i < reticleLines.Length; i++)
         {
-
+            reticleLines[i].Width = clThickness;
         }
+
         QueueRedraw();
     }
 

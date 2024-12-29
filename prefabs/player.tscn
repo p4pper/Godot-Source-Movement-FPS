@@ -157,8 +157,10 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_02q2x")
+clThickness = 4.0
 reticleLines = [NodePath("Top"), NodePath("Right"), NodePath("Bottom"), NodePath("Left")]
 playerController = NodePath("../..")
+dotRadius = 4.0
 
 [node name="Top" type="Line2D" parent="UI/Crosshair"]
 position = Vector2(20, 20)
