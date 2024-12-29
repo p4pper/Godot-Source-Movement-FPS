@@ -1,0 +1,39 @@
+[gd_scene load_steps=8 format=3 uid="uid://jy7jrndloukd"]
+
+[ext_resource type="Texture2D" uid="uid://ex478uomuaah" path="res://textures/sky/sky_dust_1.exr" id="1_4004m"]
+[ext_resource type="CameraAttributesPractical" uid="uid://ctmrj2k2j2xwo" path="res://attributes/levelDesignCameraAttributePracticalEnv.tres" id="2_mlt1h"]
+[ext_resource type="PackedScene" uid="uid://chw7taklxu4nm" path="res://fabs/player.tscn" id="3_mx0mt"]
+[ext_resource type="PackedScene" uid="uid://ogw0kyil2dvd" path="res://models/campaign/junkyard/ground/groundJunkyard.glb" id="7_c23j3"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_cg44b"]
+panorama = ExtResource("1_4004m")
+
+[sub_resource type="Sky" id="Sky_jghka"]
+sky_material = SubResource("PanoramaSkyMaterial_cg44b")
+
+[sub_resource type="Environment" id="Environment_xew23"]
+background_mode = 2
+sky = SubResource("Sky_jghka")
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0
+volumetric_fog_albedo = Color(0.862745, 0.756863, 0.564706, 1)
+volumetric_fog_emission_energy = 0.0
+
+[node name="LevelDesign" type="Node3D"]
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_xew23")
+camera_attributes = ExtResource("2_mlt1h")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(-0.95181, -0.306285, -0.015715, -0.244895, 0.728192, 0.640127, -0.184618, 0.613128, -0.768108, -16.9026, 7.92688, 0.0106579)
+light_energy = 1.717
+light_indirect_energy = 1.574
+directional_shadow_split_1 = 0.181
+
+[node name="Player" parent="." instance=ExtResource("3_mx0mt")]
+
+[node name="groundJunkyard" parent="." instance=ExtResource("7_c23j3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, -1, 0)

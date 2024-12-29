@@ -1,0 +1,26 @@
+# Godot specific
+.export/
+.idea/
+.vscode/
+*.import
+*.godot
+*.gdmeta
+*.tscn.import
+/.godot/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
+.vs
+
+# Backup files
+*~
+*.bak
+*.swp
+
+# User-specific
+*.user
