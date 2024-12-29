@@ -41,7 +41,7 @@ public partial class Reticle : CenterContainer
         Vector3 origin = new Vector3(20,20,0);
         Vector2 position = new Vector2(20, 20);
         float speed = velocity.Length();
-
+    
         reticleLines[0].Position = reticleLines[0].Position.Lerp(
             position + new Vector2(0, -speed * reticleDistance),
             reticleSpeed

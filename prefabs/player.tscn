@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/player/PlayerController.cs" id="1_a6n6j"]
 [ext_resource type="CameraAttributesPractical" uid="uid://ctmrj2k2j2xwo" path="res://attributes/levelDesignCameraAttributePracticalEnv.tres" id="2_r2usr"]
-[ext_resource type="Script" path="res://scripts/crosshair/Reticle.cs" id="4_02q2x"]
+[ext_resource type="Script" path="res://scripts/crosshair/CrosshairManager.cs" id="4_02q2x"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_sjllg"]
 radius = 0.521626
