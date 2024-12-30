@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" load_steps=4 format=3 uid="uid://bspvv0pbguaa"]
+
+[ext_resource type="Texture2D" uid="uid://ul6q3v2164un" path="res://assets/prototype/tiles001/Tiles052_2K-JPG_Color.jpg" id="1_r8pi2"]
+[ext_resource type="Texture2D" uid="uid://cgv8wm5ghmxi2" path="res://assets/prototype/tiles001/Tiles052_2K-JPG_Displacement.jpg" id="2_0vg87"]
+[ext_resource type="Texture2D" uid="uid://dirqy7mur2uio" path="res://assets/prototype/tiles001/Tiles052_2K-JPG_Roughness.jpg" id="3_nfk5h"]
+
+[resource]
+albedo_texture = ExtResource("1_r8pi2")
+metallic = 1.0
+metallic_texture = ExtResource("2_0vg87")
+roughness_texture = ExtResource("3_nfk5h")
+uv1_scale = Vector3(-0.245, -0.245, -0.245)
+uv1_triplanar = true

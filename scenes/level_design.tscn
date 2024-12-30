@@ -1,12 +1,12 @@
 [gd_scene load_steps=8 format=3 uid="uid://jy7jrndloukd"]
 
-[ext_resource type="Texture2D" uid="uid://ex478uomuaah" path="res://assets/skybox/sky_dust_1.exr" id="1_4004m"]
+[ext_resource type="Texture2D" uid="uid://djlwdc223n2fm" path="res://assets/skybox/purple_sky.jpg" id="1_svh2w"]
 [ext_resource type="CameraAttributesPractical" uid="uid://ctmrj2k2j2xwo" path="res://attributes/levelDesignCameraAttributePracticalEnv.tres" id="2_mlt1h"]
 [ext_resource type="PackedScene" uid="uid://chw7taklxu4nm" path="res://prefabs/player.tscn" id="3_mx0mt"]
-[ext_resource type="PackedScene" uid="uid://ogw0kyil2dvd" path="res://assets/ground/groundJunkyard.glb" id="7_c23j3"]
+[ext_resource type="Material" uid="uid://bspvv0pbguaa" path="res://assets/prototype/tiles001/tiles001mat.tres" id="4_57vw8"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_cg44b"]
-panorama = ExtResource("1_4004m")
+panorama = ExtResource("1_svh2w")
 
 [sub_resource type="Sky" id="Sky_jghka"]
 sky_material = SubResource("PanoramaSkyMaterial_cg44b")
@@ -34,6 +34,28 @@ light_indirect_energy = 1.574
 directional_shadow_split_1 = 0.181
 
 [node name="Player" parent="." instance=ExtResource("3_mx0mt")]
+transform = Transform3D(1, 0, 0, 0, 0.999099, 0, 0, 0, 1, 0, 0, 0)
+allowAutoJump = false
 
-[node name="groundJunkyard" parent="." instance=ExtResource("7_c23j3")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, -1, 0)
+[node name="CSGBox3D5" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4441, -0.00103402, 11.1617)
+use_collision = true
+size = Vector3(7.45158, 0.778992, 1.34141)
+material = ExtResource("4_57vw8")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="."]
+use_collision = true
+size = Vector3(21.9616, 2.94337, 29.445)
+material = ExtResource("4_57vw8")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="CSGBox3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0494823, 0.706815, 2.83919)
+operation = 2
+size = Vector3(21.194, 3.27478, 8.01705)
+material = ExtResource("4_57vw8")
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="CSGBox3D2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0494823, 1.20521, 7.83915)
+operation = 2
+size = Vector3(21.194, 3.27478, 8.01705)
+material = ExtResource("4_57vw8")

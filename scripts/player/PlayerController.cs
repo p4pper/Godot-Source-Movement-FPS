@@ -4,219 +4,257 @@ using System.ComponentModel.DataAnnotations;
 
 public partial class PlayerController : CharacterBody3D
 {
-
     [Export] private AnimationPlayer animationPlayer;
-
     [Export, Range(0.0f, 1.0f)] private float crouchSpeed = 7f;
     [Export] private float lookSensitivity = 0.006f;
     [Export] private float jumpForce = 6f;
     [Export] private float walkSpeed = 7f;
-    
     [Export] private bool allowAutoJump = false;
+
+    [Export] private bool crouchIsToggleable = false; // If this is false, crouch is done by holding.
+
+    [Export] private CameraAttributesPractical cameraEnvSettings;
+    [Export] private Control pauseUI;
 
     private float originalWalkSpeed;
     private float stealthSpeed;
+    private bool isCrouching = false;
+
+    private const float HEADBOB_MOVE_AMOUNT = 0.06f;
+    private const float HEADBOB_FREQUENCY = 2.4f;
 
     private float groundAcceleration = 16f;
     private float groundDecceleration = 10f;
     private float groundFriction = 3f;
-    private bool isCrouching = false;
 
-    private float airCap = 0.05f;
+    // Affects movement in the air
+    private float airCap = 0.5f;
     private float airAcceleration = 800f;
     private float airMovementSpeed = 500f;
 
-    private const float HEADBOB_MOVE_AMOUNT = 0.06f;
-    private const float HEADBOB_FREQUENCY = 2.4f;
     private float headbobTime = 0.0f;
-
     private Vector3 playerDirection = Vector3.Zero;
-    private Label changingVariablesLabel;
-
     private Camera3D playerCamera;
-    [Export] private CameraAttributesPractical cameraEnvSettings;
-    [Export] private Control pauseUI;
-
-    private bool waitForFloorToCrouch = false;
 
     public override void _Ready()
     {
         originalWalkSpeed = walkSpeed;
-        setSpeeds();
-
-        // Hide Player's model from player's camera
-        foreach (VisualInstance3D child in GetNode<Node3D>("PlayerModel").FindChildren("*", "VisualInstance3D"))
-        {
-            child.SetLayerMaskValue(1, false);
-            child.SetLayerMaskValue(2, true);
-        }
-
-        // Initilaise camera with unique node name.
-        playerCamera = GetNode<Camera3D>("%PlayerCamera");
+        UpdateSpeeds();
+        HidePlayerModelFromCamera();
+        InitializeCamera();
     }
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        // Capture mouse, or uncapture as ESC pressed
-        if (@event is InputEventMouseButton)
-            Input.MouseMode = Input.MouseModeEnum.Captured;
-        else if (@event.IsActionPressed("ui_cancel"))
-            if (Input.MouseMode == Input.MouseModeEnum.Captured)
-            {
-                pauseUI.Visible = true;
-                cameraEnvSettings.DofBlurFarEnabled = true;
-                Input.MouseMode = Input.MouseModeEnum.Visible;
-            }
-            else
-            {
-                pauseUI.Visible = false;
-                cameraEnvSettings.DofBlurFarEnabled = false;
-                Input.MouseMode = Input.MouseModeEnum.Captured;
-            }
-        if (@event is InputEventMouseMotion && Input.MouseMode == Input.MouseModeEnum.Captured)
-        {
-            RotatePlayerCamera(@event as InputEventMouseMotion);
-        }
-
-
-        if(@event.IsActionPressed("crouch"))
-        {
-            toggleCrouch();
-        }
+        HandlePauseAndMouseInput(@event);
+        HandleCameraRotation(@event);
+        HandleCrouchInput(@event);
     }
 
     public override void _PhysicsProcess(double delta)
     {
         if (Input.MouseMode == Input.MouseModeEnum.Captured)
-        {
-            Vector2 inputDirection = Input.GetVector("left", "right", "forward", "backward").Normalized();
-            playerDirection = GlobalTransform.Basis * new Vector3(inputDirection.X, 0f, inputDirection.Y);
-        }
-        if (IsOnFloor())
-        {
-            if(Input.IsActionJustPressed("jump") || (allowAutoJump && Input.IsActionPressed("jump")))
-            {
-                Velocity = new Vector3(Velocity.X, jumpForce, Velocity.Z);
-            }
-            handleGroundPhysics((float)delta);
-        } else
-        {
-            handleAirPhysics((float)delta);
-        }
+            UpdatePlayerDirection();
 
-        if (waitForFloorToCrouch && IsOnFloor())
-        {
-            toggleCrouch();
-            waitForFloorToCrouch = false;
-        }
+        if (IsOnFloor())
+            ProcessGroundMovement((float)delta);
+        else
+            ProcessAirMovement((float)delta);
 
         MoveAndSlide();
     }
 
-    private float getMovementSpeed()
+    private void HidePlayerModelFromCamera()
     {
-        setSpeeds();
-        if (Input.IsActionPressed("stealth"))
-            return stealthSpeed;
-        return walkSpeed;
+        foreach (VisualInstance3D child in GetNode<Node3D>("PlayerModel").FindChildren("*", "VisualInstance3D"))
+        {
+            child.SetLayerMaskValue(1, false);
+            child.SetLayerMaskValue(2, true);
+        }
     }
 
-    // Cast delta as (float) when calling those functions because delta is double in godot.
-    private void handleGroundPhysics(float delta)
+    private void InitializeCamera()
     {
-        var currentSpeedInPlayerDir = Velocity.Dot(playerDirection);
-        var addSpeedTillCap = getMovementSpeed() - currentSpeedInPlayerDir;
-        if(addSpeedTillCap > 0)
+        playerCamera = GetNode<Camera3D>("%PlayerCamera");
+    }
+
+    private void HandlePauseAndMouseInput(InputEvent @event)
+    {
+        if (@event is InputEventMouseButton)
+            Input.MouseMode = Input.MouseModeEnum.Captured;
+
+        if (@event.IsActionPressed("ui_cancel"))
         {
-            var accelerationSpeed = groundAcceleration * delta * getMovementSpeed();
-            accelerationSpeed = MathF.Min(accelerationSpeed, addSpeedTillCap);
-            Velocity += accelerationSpeed * playerDirection;
+            TogglePauseUI();
+        }
+    }
+
+    private void TogglePauseUI()
+    {
+        bool isPaused = Input.MouseMode == Input.MouseModeEnum.Visible;
+        pauseUI.Visible = !isPaused;
+        cameraEnvSettings.DofBlurFarEnabled = !isPaused;
+        Input.MouseMode = isPaused ? Input.MouseModeEnum.Captured : Input.MouseModeEnum.Visible;
+    }
+
+    private void HandleCameraRotation(InputEvent @event)
+    {
+        if (@event is InputEventMouseMotion motion && Input.MouseMode == Input.MouseModeEnum.Captured)
+        {
+            RotateY(-motion.Relative.X * lookSensitivity);
+            playerCamera.RotateX(-motion.Relative.Y * lookSensitivity);
+            playerCamera.Rotation = playerCamera.Rotation with { X = Math.Clamp(playerCamera.Rotation.X, Mathf.DegToRad(-90f), Mathf.DegToRad(90f)) };
+        }
+    }
+
+    private void HandleCrouchInput(InputEvent @event)
+    {
+        if (@event.IsActionPressed("crouch") && crouchIsToggleable)
+            ToggleCrouch();
+
+
+        if(!crouchIsToggleable)
+        {
+            if (@event.IsActionPressed("crouch"))
+            {
+                HoldCrouch(true);
+            } else if (@event.IsActionReleased("crouch"))
+            {
+                HoldCrouch(false);
+            }
         }
 
-        // Friction
-        var control = Mathf.Max(Velocity.Length(), groundDecceleration);
-        var drop = control * groundFriction * delta;
-        var newSpeed = Mathf.Max(Velocity.Length() - drop, 0.0);
-        
+    }
 
-        if(Velocity.Length() > 0)
+    private void UpdatePlayerDirection()
+    {
+        Vector2 inputDirection = Input.GetVector("left", "right", "forward", "backward").Normalized();
+        playerDirection = GlobalTransform.Basis * new Vector3(inputDirection.X, 0f, inputDirection.Y);
+    }
+
+    private void ProcessGroundMovement(float delta)
+    {
+        if (Input.IsActionJustPressed("jump") || (allowAutoJump && Input.IsActionPressed("jump")))
         {
+            // Preserve horizontal velocity while applying the vertical jump force
+            Velocity = new Vector3(Velocity.X, jumpForce, Velocity.Z);
+        }
+
+        ApplyGroundPhysics(delta);
+
+    }
+
+    private void ProcessAirMovement(float delta)
+    {
+        ApplyGravity(delta);
+        ApplyAirPhysics(delta);
+    }
+
+    private void ApplyGroundPhysics(float delta)
+    {
+        ApplyAcceleration(delta, groundAcceleration, getMovementSpeed());
+        ApplyFriction(delta);
+
+        // Apparently, when you walk infront of walls, your speed is 1.3...
+        // Only headbob when actually moving
+        // NEEDS A FIX.
+        if(Velocity.Length() > 1.4f)
+            ApplyHeadbobEffect(delta);
+
+    }
+
+    private void ApplyAirPhysics(float delta)
+    {
+        float maxSpeed = Mathf.Min(airMovementSpeed * playerDirection.Length(), airCap);
+        ApplyAcceleration(delta, airAcceleration * airMovementSpeed, maxSpeed);
+    }
+
+    private void ApplyAcceleration(float delta, float acceleration, float maxSpeed)
+    {
+        float currentSpeed = Velocity.Dot(playerDirection);
+        float addSpeed = maxSpeed - currentSpeed;
+        if (addSpeed > 0)
+        {
+            float accelSpeed = Mathf.Min(acceleration * delta * maxSpeed, addSpeed);
+            Velocity += accelSpeed * playerDirection;
+        }
+    }
+
+    private void ApplyFriction(float delta)
+    {
+        float control = Mathf.Max(Velocity.Length(), groundDecceleration);
+        float drop = control * groundFriction * delta;
+        float newSpeed = Mathf.Max(Velocity.Length() - drop, 0.0f);
+
+        if (Velocity.Length() > 0)
             newSpeed /= Velocity.Length();
-        }
-        Velocity = Velocity with { X=Velocity.X * (float)newSpeed, 
-            Y=Velocity.Y * (float)newSpeed,
-            Z=Velocity.Z * (float)newSpeed
-        };
 
-        headbobEffect(delta);
+        Velocity *= newSpeed;
     }
 
-    private void handleAirPhysics(float delta)
+    private void ApplyGravity(float delta)
     {
-        var gravity = ProjectSettings.GetSetting("physics/3d/default_gravity");
-        Velocity = new Vector3(Velocity.X, Velocity.Y - (float)gravity * delta, Velocity.Z);
-
-        var currentSpeedInPlayerDirection = Velocity.Dot(playerDirection);
-        var cappedSpeed = Mathf.Min((airMovementSpeed * playerDirection).Length(), airCap);
-        var addSpeedTillCap = cappedSpeed - currentSpeedInPlayerDirection;
-
-        if (addSpeedTillCap > 0)
-        {
-            var accelerationSpeed = airAcceleration * airMovementSpeed * delta;
-            accelerationSpeed = Mathf.Min(accelerationSpeed, addSpeedTillCap);
-            Velocity += accelerationSpeed * playerDirection;
-        }
+        float gravity = (float)ProjectSettings.GetSetting("physics/3d/default_gravity");
+        Velocity += new Vector3(0, -gravity * delta, 0);
     }
 
-    private void headbobEffect(float delta)
+    private void ApplyHeadbobEffect(float delta)
     {
         headbobTime += delta * Velocity.Length();
         playerCamera.Transform = playerCamera.Transform with { Origin = new Vector3(
             Mathf.Cos(headbobTime * HEADBOB_FREQUENCY * 0.5f) * HEADBOB_MOVE_AMOUNT,
             Mathf.Cos(headbobTime * HEADBOB_FREQUENCY) * HEADBOB_MOVE_AMOUNT,
             0f
-            ) 
-        };
+        ) };
     }
 
-    private void RotatePlayerCamera(InputEventMouseMotion @event)
+    private void ToggleCrouch()
     {
-        RotateY(-@event.Relative.X * lookSensitivity);
-        playerCamera.RotateX(-@event.Relative.Y * lookSensitivity);
-        playerCamera.Rotation = playerCamera.Rotation with { X = Math.Clamp(playerCamera.Rotation.X, Mathf.DegToRad(-90f), Mathf.DegToRad(90f)) };
-    }
+            if (!IsOnFloor()) // Defer crouch toggle until player lands
+            {
+                return;
+            }
 
-    private void toggleCrouch()
-    {
-        if (isCrouching)
-        {
-            animationPlayer.Play("playerCrouch", -1, -crouchSpeed, true);
+            if (isCrouching)
+            {
+                animationPlayer.Play("playerCrouch", -1, -crouchSpeed, true); // Uncrouch
+            }
+            else
+            {
+                animationPlayer.Play("playerCrouch", -1, crouchSpeed); // Crouch
+            }
+
             isCrouching = !isCrouching;
-        }
-        else
-        {
-            if (this.IsOnFloor())
+            UpdateSpeeds();
+    }
+
+    private void HoldCrouch(bool isHolding)
+    {
+            if (!IsOnFloor()) // Defer crouch toggle until player lands
+            {
+                return;
+            }
+
+            
+            if (isHolding && !isCrouching) // Start crouching
             {
                 animationPlayer.Play("playerCrouch", -1, crouchSpeed);
-                isCrouching = !isCrouching;
-            } else
+                isCrouching = true;
+            }
+            else if (!isHolding && isCrouching) // Stop crouching
             {
-                waitForFloorToCrouch = true;
+                animationPlayer.Play("playerCrouch", -1, -crouchSpeed, true);
+                isCrouching = false;
             }
             
-        }
+            UpdateSpeeds();
     }
 
-    private void setSpeeds()
+    private void UpdateSpeeds()
     {
-        if(isCrouching)
-        {
-            walkSpeed = originalWalkSpeed * 0.7f;
-            stealthSpeed = walkSpeed * 0.5f;
-        } else
-        {
-            walkSpeed = originalWalkSpeed;
-            stealthSpeed = walkSpeed * 0.7f;
-        }
+        walkSpeed = isCrouching ? originalWalkSpeed * 0.7f : originalWalkSpeed;
+        stealthSpeed = walkSpeed * 0.7f;
     }
+
+    private float getMovementSpeed() => Input.IsActionPressed("stealth") ? stealthSpeed : walkSpeed;
 }
