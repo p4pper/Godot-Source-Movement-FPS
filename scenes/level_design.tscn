@@ -1,12 +1,13 @@
-[gd_scene load_steps=8 format=3 uid="uid://jy7jrndloukd"]
+[gd_scene load_steps=9 format=3 uid="uid://jy7jrndloukd"]
 
-[ext_resource type="Texture2D" uid="uid://djlwdc223n2fm" path="res://assets/skybox/purple_sky.jpg" id="1_svh2w"]
+[ext_resource type="Texture2D" uid="uid://cppeqmwvrdaaq" path="res://assets/skybox/skybox.png" id="1_6ga8b"]
 [ext_resource type="CameraAttributesPractical" uid="uid://ctmrj2k2j2xwo" path="res://attributes/levelDesignCameraAttributePracticalEnv.tres" id="2_mlt1h"]
 [ext_resource type="PackedScene" uid="uid://chw7taklxu4nm" path="res://prefabs/player.tscn" id="3_mx0mt"]
 [ext_resource type="Material" uid="uid://bspvv0pbguaa" path="res://assets/prototype/tiles001/tiles001mat.tres" id="4_57vw8"]
+[ext_resource type="LabelSettings" uid="uid://bhote8okrqhwy" path="res://resources/label/console_label_12px.tres" id="5_gpp4c"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_cg44b"]
-panorama = ExtResource("1_svh2w")
+panorama = ExtResource("1_6ga8b")
 
 [sub_resource type="Sky" id="Sky_jghka"]
 sky_material = SubResource("PanoramaSkyMaterial_cg44b")
@@ -28,34 +29,50 @@ environment = SubResource("Environment_xew23")
 camera_attributes = ExtResource("2_mlt1h")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
-transform = Transform3D(-0.95181, -0.306285, -0.015715, -0.244895, 0.728192, 0.640127, -0.184618, 0.613128, -0.768108, -16.9026, 7.92688, 0.0106579)
-light_energy = 1.717
-light_indirect_energy = 1.574
-directional_shadow_split_1 = 0.181
+transform = Transform3D(0.0238313, -0.598268, 0.800941, -0.295463, 0.761164, 0.577348, -0.955057, -0.250408, -0.158627, 28.4337, 7.92688, 0.0106579)
+light_color = Color(1, 0.808635, 0.729485, 1)
+light_energy = 0.67
+light_indirect_energy = 0.826
+directional_shadow_mode = 0
+directional_shadow_split_1 = 0.144
+directional_shadow_fade_start = 0.697
 
-[node name="Player" parent="." instance=ExtResource("3_mx0mt")]
-transform = Transform3D(1, 0, 0, 0, 0.999099, 0, 0, 0, 1, 0, 0, 0)
+[node name="Player" parent="." node_paths=PackedStringArray("debugLabel") instance=ExtResource("3_mx0mt")]
+transform = Transform3D(1, 0, 0, 0, 0.999099, 0, 0, 0, 1, 0.0323238, 0.0801573, 0.0140686)
 allowAutoJump = false
-
-[node name="CSGBox3D5" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4441, -0.00103402, 11.1617)
-use_collision = true
-size = Vector3(7.45158, 0.778992, 1.34141)
-material = ExtResource("4_57vw8")
+debugLabel = NodePath("../DebugUI/PlayerInformation")
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0323238, 0.0801573, 0.0140686)
 use_collision = true
 size = Vector3(21.9616, 2.94337, 29.445)
 material = ExtResource("4_57vw8")
 
 [node name="CSGBox3D3" type="CSGBox3D" parent="CSGBox3D2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0494823, 0.706815, 2.83919)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0494823, 0.706815, -3.41094)
 operation = 2
-size = Vector3(21.194, 3.27478, 8.01705)
+size = Vector3(21.194, 3.27478, 20.5173)
 material = ExtResource("4_57vw8")
 
 [node name="CSGBox3D4" type="CSGBox3D" parent="CSGBox3D2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0494823, 1.20521, 7.83915)
+transform = Transform3D(1, 0, 0, 0, 0.961348, 0.275335, 0, -0.275335, 0.961348, -0.0494823, 1.807, 9.90936)
 operation = 2
-size = Vector3(21.194, 3.27478, 8.01705)
+size = Vector3(21.194, 3.5993, 8.01705)
 material = ExtResource("4_57vw8")
+
+[node name="DebugUI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PlayerInformation" type="Label" parent="DebugUI"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "player_information_label
+player_information_line"
+label_settings = ExtResource("5_gpp4c")

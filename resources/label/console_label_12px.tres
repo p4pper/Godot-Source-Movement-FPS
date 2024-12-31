@@ -3,4 +3,5 @@
 [ext_resource type="FontFile" uid="uid://ck76wbb2dfey6" path="res://assets/fonts/AfacadFlux-Regular.ttf" id="1_s3d3t"]
 
 [resource]
+line_spacing = -7.67
 font = ExtResource("1_s3d3t")

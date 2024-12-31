@@ -10,6 +10,7 @@ public partial class PlayerController : CharacterBody3D
     [Export] private float jumpForce = 6f;
     [Export] private float walkSpeed = 7f;
     [Export] private bool allowAutoJump = false;
+    [Export] private Label debugLabel;
 
     [Export] private bool crouchIsToggleable = false; // If this is false, crouch is done by holding.
 
@@ -49,6 +50,17 @@ public partial class PlayerController : CharacterBody3D
         HandlePauseAndMouseInput(@event);
         HandleCameraRotation(@event);
         HandleCrouchInput(@event);
+    }
+
+    public override void _Process(double delta)
+    {
+                debugLabel.Text = @$"
+                DEBUG_BUILD 0.1
+                FPS: {Math.Round(1 / delta)} | Frame Time: {Math.Round(delta * 1000)} ms
+                Position: X: {Math.Round(Position.X)}, Y: {Math.Round(Position.Y)}, Z: {Math.Round(Position.Z)}
+                Speed: {Math.Round(Velocity.Length())}
+                On Floor: {IsOnFloor()}
+                ";
     }
 
     public override void _PhysicsProcess(double delta)
