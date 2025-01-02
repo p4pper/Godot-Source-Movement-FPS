@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://chw7taklxu4nm"]
+[gd_scene load_steps=12 format=3 uid="uid://chw7taklxu4nm"]
 
 [ext_resource type="Script" path="res://scripts/player/PlayerController.cs" id="1_a6n6j"]
 [ext_resource type="CameraAttributesPractical" uid="uid://ctmrj2k2j2xwo" path="res://attributes/levelDesignCameraAttributePracticalEnv.tres" id="2_r2usr"]
 [ext_resource type="Script" path="res://scripts/crosshair/CrosshairManager.cs" id="4_02q2x"]
+[ext_resource type="Script" path="res://scripts/menu/unpauseButton.cs" id="4_55xrs"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_sjllg"]
 radius = 0.521626
@@ -195,3 +196,6 @@ offset_top = 282.0
 offset_right = 775.0
 offset_bottom = 365.0
 text = "Wow pause menu"
+script = ExtResource("4_55xrs")
+
+[connection signal="pressed" from="UI/Pause/Button" to="UI/Pause/Button" method="_on_pressed"]

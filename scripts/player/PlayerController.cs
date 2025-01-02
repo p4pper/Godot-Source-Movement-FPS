@@ -36,6 +36,7 @@ public partial class PlayerController : CharacterBody3D
     private float headbobTime = 0.0f;
     private Vector3 playerDirection = Vector3.Zero;
     private Camera3D playerCamera;
+    
 
     public override void _Ready()
     {
@@ -55,7 +56,6 @@ public partial class PlayerController : CharacterBody3D
     public override void _Process(double delta)
     {
                 debugLabel.Text = @$"
-                DEBUG_BUILD 0.1
                 FPS: {Math.Round(1 / delta)} | Frame Time: {Math.Round(delta * 1000)} ms
                 Position: X: {Math.Round(Position.X)}, Y: {Math.Round(Position.Y)}, Z: {Math.Round(Position.Z)}
                 Speed: {Math.Round(Velocity.Length())}
@@ -162,18 +162,48 @@ public partial class PlayerController : CharacterBody3D
         ApplyAirPhysics(delta);
     }
 
-    private void ApplyGroundPhysics(float delta)
+private void ApplyGroundPhysics(float delta)
+{
+    // Apply acceleration and friction
+    ApplyAcceleration(delta, groundAcceleration, getMovementSpeed());
+    ApplyFriction(delta);
+
+    // Limit speed only when grounded
+    if (IsOnFloor())
     {
-        ApplyAcceleration(delta, groundAcceleration, getMovementSpeed());
-        ApplyFriction(delta);
+        float maxSpeed = getMovementSpeed();
+        Vector3 velocityDirection = Velocity.Normalized();
 
-        // Apparently, when you walk infront of walls, your speed is 1.3...
-        // Only headbob when actually moving
-        // NEEDS A FIX.
-        if(Velocity.Length() > 1.4f)
-            ApplyHeadbobEffect(delta);
+        // Handle wall sliding speed
+        if (IsOnWall())
+        {
+            Vector3 wallNormal = GetWallNormal();
+            Vector3 slideDirection = Velocity.Slide(wallNormal);
 
+            if (slideDirection.Length() > maxSpeed)
+            {
+                slideDirection = slideDirection.Normalized() * maxSpeed;
+                Velocity = new Vector3(slideDirection.X, Velocity.Y, slideDirection.Z);
+            }
+        }
+        else
+        {
+            // Clamp only horizontal speed
+            Vector3 horizontalVelocity = new Vector3(Velocity.X, 0, Velocity.Z);
+            if (horizontalVelocity.Length() > maxSpeed)
+            {
+                horizontalVelocity = horizontalVelocity.Normalized() * maxSpeed;
+                Velocity = new Vector3(horizontalVelocity.X, Velocity.Y, horizontalVelocity.Z);
+            }
+        }
     }
+
+    // Apply headbob effect only when moving
+    if (Velocity.Length() > 1.4f)
+        ApplyHeadbobEffect(delta);
+}
+
+
 
     private void ApplyAirPhysics(float delta)
     {

@@ -1,20 +1,43 @@
-[gd_scene load_steps=9 format=3 uid="uid://jy7jrndloukd"]
+[gd_scene load_steps=10 format=3 uid="uid://jy7jrndloukd"]
 
-[ext_resource type="Texture2D" uid="uid://cppeqmwvrdaaq" path="res://assets/skybox/skybox.png" id="1_6ga8b"]
 [ext_resource type="CameraAttributesPractical" uid="uid://ctmrj2k2j2xwo" path="res://attributes/levelDesignCameraAttributePracticalEnv.tres" id="2_mlt1h"]
 [ext_resource type="PackedScene" uid="uid://chw7taklxu4nm" path="res://prefabs/player.tscn" id="3_mx0mt"]
 [ext_resource type="Material" uid="uid://bspvv0pbguaa" path="res://assets/prototype/tiles001/tiles001mat.tres" id="4_57vw8"]
 [ext_resource type="LabelSettings" uid="uid://bhote8okrqhwy" path="res://resources/label/console_label_12px.tres" id="5_gpp4c"]
 
-[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_cg44b"]
-panorama = ExtResource("1_6ga8b")
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_7703o"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_s2lhd"]
+width = 4
+in_3d_space = true
+seamless = true
+seamless_blend_skirt = 0.771
+noise = SubResource("FastNoiseLite_7703o")
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_t0idf"]
+sky_top_color = Color(0.511283, 0.530829, 0.60063, 1)
+sky_horizon_color = Color(0.31827, 0.326239, 0.338819, 1)
+sky_curve = 0.126134
+sky_cover = SubResource("NoiseTexture2D_s2lhd")
 
 [sub_resource type="Sky" id="Sky_jghka"]
-sky_material = SubResource("PanoramaSkyMaterial_cg44b")
+sky_material = SubResource("ProceduralSkyMaterial_t0idf")
 
 [sub_resource type="Environment" id="Environment_xew23"]
 background_mode = 2
 sky = SubResource("Sky_jghka")
+reflected_light_source = 2
+tonemap_mode = 2
+ssao_enabled = true
+ssil_enabled = true
+ssil_radius = 1.27
+ssil_intensity = 0.0
+ssil_sharpness = 0.0
+glow_enabled = true
+fog_enabled = true
+fog_light_energy = 0.22
+fog_density = 0.0
+fog_sky_affect = 0.738
 volumetric_fog_enabled = true
 volumetric_fog_density = 0.0
 volumetric_fog_albedo = Color(0.862745, 0.756863, 0.564706, 1)
@@ -29,10 +52,12 @@ environment = SubResource("Environment_xew23")
 camera_attributes = ExtResource("2_mlt1h")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
-transform = Transform3D(0.0238313, -0.598268, 0.800941, -0.295463, 0.761164, 0.577348, -0.955057, -0.250408, -0.158627, 28.4337, 7.92688, 0.0106579)
-light_color = Color(1, 0.808635, 0.729485, 1)
-light_energy = 0.67
-light_indirect_energy = 0.826
+transform = Transform3D(-0.387307, -0.647874, 0.655937, -0.295463, 0.761164, 0.577348, -0.873324, 0.0298055, -0.486227, 28.4337, 7.92688, 0.0106579)
+light_color = Color(0.974524, 0.958895, 0.826028, 1)
+light_energy = 5.636
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 0.85
+shadow_enabled = true
 directional_shadow_mode = 0
 directional_shadow_split_1 = 0.144
 directional_shadow_fade_start = 0.697
@@ -43,24 +68,25 @@ allowAutoJump = false
 debugLabel = NodePath("../DebugUI/PlayerInformation")
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0323238, 0.0801573, 0.0140686)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.11722, 0.0811408, -0.422126)
 use_collision = true
-size = Vector3(21.9616, 2.94337, 29.445)
+size = Vector3(88.206, 2.94337, 81.7878)
 material = ExtResource("4_57vw8")
 
 [node name="CSGBox3D3" type="CSGBox3D" parent="CSGBox3D2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0494823, 0.706815, -3.41094)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.38933, 0.706815, -15.1918)
 operation = 2
-size = Vector3(21.194, 3.27478, 20.5173)
+size = Vector3(75, 3.27478, 44.079)
 material = ExtResource("4_57vw8")
 
 [node name="CSGBox3D4" type="CSGBox3D" parent="CSGBox3D2"]
-transform = Transform3D(1, 0, 0, 0, 0.961348, 0.275335, 0, -0.275335, 0.961348, -0.0494823, 1.807, 9.90936)
+transform = Transform3D(1, 0, 0, 0, 0.961348, 0.275335, 0, -0.275335, 0.961348, -0.0494823, 2.05004, 10.7579)
 operation = 2
-size = Vector3(21.194, 3.5993, 8.01705)
+size = Vector3(21.194, 3.5993, 9.78245)
 material = ExtResource("4_57vw8")
 
 [node name="DebugUI" type="Control" parent="."]
+layout_direction = 1
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -68,11 +94,12 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+metadata/_edit_use_anchors_ = true
 
 [node name="PlayerInformation" type="Label" parent="DebugUI"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
+layout_mode = 1
+offset_right = 163.0
+offset_bottom = 37.0
 text = "player_information_label
 player_information_line"
 label_settings = ExtResource("5_gpp4c")
